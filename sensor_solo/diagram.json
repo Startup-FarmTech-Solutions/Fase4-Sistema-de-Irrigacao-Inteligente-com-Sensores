@@ -69,13 +69,13 @@
     [ "relay1:GND", "esp:GND.1", "black", [ "h-38.4", "v47.6", "h-134.4", "v-67.2" ] ],
     [ "relay1:VCC", "vcc1:VCC", "red", [ "v-38.4", "h86.4" ] ],
     [ "relay1:GND", "gnd1:GND", "black", [ "h0" ] ],
-    [ "relay1:NO", "r1:1", "green", [ "h0" ] ],
     [ "led1:A", "r1:2", "green", [ "v0" ] ],
     [ "led1:C", "gnd1:GND", "black", [ "v0" ] ],
     [ "esp:GND.2", "lcd2:GND", "black", [ "v0" ] ],
     [ "esp:3V3", "lcd2:VCC", "red", [ "h0.15", "v-163.3" ] ],
     [ "esp:21", "lcd2:SDA", "gold", [ "h-9.6", "v-221" ] ],
-    [ "esp:22", "lcd2:SCL", "green", [ "h9.6", "v-182.7" ] ]
+    [ "esp:22", "lcd2:SCL", "green", [ "h9.6", "v-182.7" ] ],
+    [ "r1:1", "esp:17", "green", [ "v0" ] ]
   ],
   "dependencies": {}
 }

@@ -17,6 +17,7 @@
 #define RELE_PIN 4
 #define IRRIGACAO_ATIVA HIGH
 #define IRRIGACAO_INATIVA LOW
+#define LED_PIN 17
 
 // Variáveis globais
 LiquidCrystal_I2C lcd(0x27, 20, 4);
@@ -298,6 +299,33 @@ void setup()
   delay(3000);
   lcd.clear();
 
+  pinMode(LED_PIN, OUTPUT);
+
+  bool irrigar = " ";
+  
+  // Irriga se a umidade for baixa
+  if (humidity_display < 40.0)
+  {
+    irrigar = true;
+    digitalWrite(LED_PIN, HIGH);
+  }
+  // Interrompe a irrigação se a umidade estiver em uma faixa segura
+  else
+  {
+    irrigar = false;
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  // Controla o relé e o LED
+  digitalWrite(RELE_PIN, irrigar ? IRRIGACAO_ATIVA : IRRIGACAO_INATIVA);
+  if (irrigar)
+  {
+    Serial.println("Irrigação Ativada!");
+  }
+  else
+  {
+    Serial.println("Irrigação Inativa!");
+  }
   publicarDados();
 }
 
@@ -308,19 +336,7 @@ void loop()
   int leituraBotaoF = digitalRead(PINO_FOSFORO);
 
   // Lógica de controle da irrigação
-  bool irrigar = false;
-  // Irriga se a umidade for baixa
-  if (humidity_display < 40.0)
-  {
-    irrigar = true;
-  }
-  // Interrompe a irrigação se a umidade estiver em uma faixa segura
-  else if (humidity_display > 55.0)
-  {
-    irrigar = false;
-  }
-  // Controla o relé
-  digitalWrite(RELE_PIN, irrigar ? IRRIGACAO_ATIVA : IRRIGACAO_INATIVA);
+  bool irrigar = " ";
 
   if (leituraBotaoP == LOW || leituraBotaoF == LOW)
   {
@@ -329,8 +345,10 @@ void loop()
     // Lê o valor de pH
     leituraLDR_inicial = analogRead(LIGHT_SENSOR_PIN);
     pH = mapearPH(leituraLDR_inicial);
+
     float pH_variation = random(-20, 20) / 10.0;
     pH_display = constrain(pH + pH_variation, 0.0, 14.0);
+
     String categoriaPH_atual = categorizarPH(pH_display);
 
     potassioPresente = (leituraBotaoP == LOW) ? 1 : 0;
@@ -364,6 +382,7 @@ void loop()
     lcd.clear();
 
     publicarDados();
+
     enviarDadosPython(
         temperatura_display,
         humidity_display,
@@ -384,6 +403,7 @@ void loop()
     }
     delay(100);
   }
+
   else if (leituraRealizada)
   {
     // Mantém a última leitura no LCD

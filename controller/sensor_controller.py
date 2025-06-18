@@ -150,4 +150,3 @@ class SensorController:
             print(f"❗️Erro ao remover o sensor: {e}")
         finally:
             connection.close_all()
-        

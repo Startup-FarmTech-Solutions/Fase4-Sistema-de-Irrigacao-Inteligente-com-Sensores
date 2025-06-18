@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+oracledb.init_oracle_client(lib_dir=os.getenv("ORACLE_CLIENT_LIB_DIR"))
+
 class ConnectionDB:
     def __init__(self, can_write=False):
         self.can_write = can_write

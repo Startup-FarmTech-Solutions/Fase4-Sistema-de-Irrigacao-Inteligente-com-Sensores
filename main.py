@@ -26,8 +26,10 @@ from display.menu import Menu
 """
 
 if __name__ == "__main__":
-    connection = ConnectionDB()
-    connection.connect_to_oracle() # Conecte ao banco de dados
-    menu = Menu() # Instancia a classe menu
-    menu.display_menu()  # Exibe o menu principal
-    
+    try:
+        connection = ConnectionDB()
+        connection.connect_to_oracle() # Conecte ao banco de dados
+        menu = Menu() # Instancia a classe menu
+        menu.display_menu()  # Exibe o menu principal
+    except Exception as e:
+        print(f"Erro ao iniciar o sistema: {e}")

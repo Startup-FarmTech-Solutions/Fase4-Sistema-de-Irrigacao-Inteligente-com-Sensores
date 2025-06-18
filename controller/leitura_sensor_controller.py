@@ -9,9 +9,13 @@ from controller.sensor_controller import SensorController
 from typing import List, Optional, Any # Importe List do módulo typing
 import json
 import random # Importa o módulo random
+import os # Importa o módulo os para manipulação de arquivos
+import csv # Importa o módulo csv para manipulação de arquivos CSV
 
 from model.leitura_sensor_model import LeituraSensorModel # Importe o módulo json
 
+fosforo_atual = 0.0 # Inicializa fosforo_atual
+potassio_atual = 0.0 # Inicializa potassio_atual
 
 # Se você quer que carregar_dados_json seja um método da classe LeituraSensorController:
 class LeituraSensorController:
@@ -21,6 +25,7 @@ class LeituraSensorController:
         self.conn = db.connect_to_oracle()
         self.potassio_atual = 0.0  # Inicializa potassio_atual
         self.fosforo_atual = 0.0    # Inicializa fosforo_atual
+        self.send_data_ml
 
     def menu_leitura(self, conn):
         """
@@ -245,3 +250,42 @@ class LeituraSensorController:
             else:
                 return None  # Tabela vazia
         return None
+
+    def send_data_ml(self, nome_arquivo_csv="ml/dados_leitura_sensor.csv", nome_arquivo_json="data/console_print.json"):
+        """
+        Recupera os dados do arquivo JSON (console_print.json) e os salva em um arquivo CSV
+        no caminho 'ml/dados_leitura_sensor.csv'.
+        Os campos exportados são: temperatura, umidade, leitura_ldr, ph, potassio, fosforo, irrigacao
+        """
+        pasta_ml = os.path.dirname(nome_arquivo_csv)
+        if pasta_ml and not os.path.exists(pasta_ml):
+            os.makedirs(pasta_ml)
+        caminho_arquivo = nome_arquivo_csv
+
+        dados_json = self.carregar_dados_json(nome_arquivo_json)
+        if not dados_json:
+            print("Nenhum dado encontrado no arquivo JSON para exportar.")
+            return
+
+        # Se o arquivo contém um único dicionário, encapsule em uma lista para processamento uniforme
+        if isinstance(dados_json, dict):
+            dados_list = [dados_json]
+        elif isinstance(dados_json, list):
+            dados_list = dados_json
+        else:
+            print("Formato de dados JSON inválido.")
+            return
+
+        campos = ["temperatura", "umidade", "leitura_ldr", "ph", "potassio", "fosforo", "irrigacao"]
+        try:
+            with open(caminho_arquivo, mode='w', newline='', encoding='utf-8') as arquivo_csv:
+                escritor_csv = csv.DictWriter(arquivo_csv, fieldnames=campos)
+                escritor_csv.writeheader()
+                for item in dados_list:
+                    linha = {campo: item.get(campo, "") for campo in campos}
+                    escritor_csv.writerow(linha)
+            print(f"Arquivo '{caminho_arquivo}' criado e dados exportados do JSON com sucesso.")
+        except IOError as e:
+            print(f"Erro de I/O ao manipular o arquivo: {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")

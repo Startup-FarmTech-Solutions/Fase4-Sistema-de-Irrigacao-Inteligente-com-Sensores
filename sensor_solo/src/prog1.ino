@@ -58,7 +58,7 @@ const char *topic_potassio = "solo/nutrientes/potassio";
 const char *topic_fosforo = "solo/nutrientes/fosforo";
 const char *topic_irrigacao = "solo/irrigacao/status";
 
-const char *server_ip = "192.168.1.48"; // Adicione o IP do seu computador
+const char *server_ip = " "; // Adicione o IP do seu computador
 const uint16_t server_port = 12345;
 
 WiFiClient espClient;

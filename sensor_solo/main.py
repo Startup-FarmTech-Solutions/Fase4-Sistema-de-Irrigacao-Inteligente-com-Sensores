@@ -43,9 +43,9 @@ database = {
     "leituras": []
 }
 
-# Variáveis para armazenar os valores de potássio e fósforo
-potassio_atual = 0
-fosforo_atual = 0
+# # Variáveis para armazenar os valores de potássio e fósforo
+potassio_atual = 0.0  # Inicializado como zero para evitar erros de tipo
+fosforo_atual = 0.0  # Inicializado como zero para evitar erros de tipo
 
 # Função para adicionar uma leitura ao banco de dados simulado
 def adicionar_leitura(leitura):
@@ -159,7 +159,7 @@ def salvar_console_print_json(dados):
 
 # Função principal para receber dados do ESP32 e processá-los
 # Na variável host, coloque o IP do seu computador
-def main(host = '', port = 12345):
+def main(host = '192.168.1.48', port = 12345):
     """
     Inicia um servidor TCP para receber leituras de sensores de um dispositivo ESP32, processar os dados recebidos,
     realizar operações CRUD em um banco de dados simulado, simular adição de potássio e fósforo, e responder ao cliente.

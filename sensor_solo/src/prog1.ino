@@ -24,15 +24,19 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 DHT dht(DHTPIN, DHTTYPE);
 int potassioPresente = 0;
 int fosforoPresente = 0;
-int leituraLDR_inicial = 0;
-float pH = 7.0;
-float pH_display = 0;
-float temperatura_display = 0.0;
+float pH = 0.0;
+float pH_display = 0.0;
+float temperature_display = 0.0;
 float humidity_display = 0.0;
+float humidity_variation = 0.0;
+float temperature_variation = 0.0;
+float pH_variation = 0.0;
 bool leituraRealizada = false;
 unsigned long lastReadTime = 0;
 const unsigned long readInterval = 2000;
 bool irrigacao_inicial = false;
+
+int leituraLDR_inicial = analogRead(LIGHT_SENSOR_PIN);
 
 // Calibração do sensor de pH (LDR) - Ajuste esses valores conforme seu LDR no Wokwi
 const int ldrMin = 100; // Valor LDR em alta luminosidade (pH alto/baixo) - Ajuste!
@@ -54,7 +58,7 @@ const char *topic_potassio = "solo/nutrientes/potassio";
 const char *topic_fosforo = "solo/nutrientes/fosforo";
 const char *topic_irrigacao = "solo/irrigacao/status";
 
-const char *server_ip = " "; // Adicione o IP do seu computador
+const char *server_ip = "192.168.1.48"; // Adicione o IP do seu computador
 const uint16_t server_port = 12345;
 
 WiFiClient espClient;
@@ -76,7 +80,7 @@ DadosSensor dadosSensor;
 // Funções auxiliares
 float mapearPH(int ldrValue)
 {
-  return map(ldrValue, ldrMax, ldrMin, 0, 14);
+  return 0.0 + (14.0 - 0.0) * (ldrValue - ldrMax) / float(ldrMin - ldrMax);
 }
 
 String categorizarPH(float phValue)
@@ -134,7 +138,7 @@ void reconnect()
         char buffer[16];
 
         // Temperatura
-        dtostrf(temperatura_display, 4, 1, buffer);
+        dtostrf(temperature_display, 4, 1, buffer);
         client.publish(topic_temp, buffer);
 
         // Umidade
@@ -167,9 +171,9 @@ void reconnect()
 void publicarDados()
 {
   JsonDocument doc;
-  doc["temperatura"] = temperatura_display;
+  doc["temperatura"] = temperature_display;
   doc["umidade"] = humidity_display;
-  doc["pH"] = pH_display;
+  doc["pH"] = roundf(pH_display * 100) / 100.0;;
   doc["potassio"] = potassioPresente;
   doc["fosforo"] = fosforoPresente;
   doc["irrigacao"] = digitalRead(RELE_PIN) == IRRIGACAO_ATIVA ? "ativa" : "inativa";
@@ -209,6 +213,8 @@ void enviarDadosPython(float temperatura, float umidade, int leitura_ldr, float 
 
 void setup()
 {
+  pH = mapearPH(leituraLDR_inicial);
+
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, mqtt_port);
@@ -244,22 +250,18 @@ void setup()
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
 
-  // Adiciona uma pequena variação aos valores
-  float humidity_variation = random(-10, 10) / 10.0;
-  float temperature_variation = random(-5, 5) / 10.0;
-  float temperature_display = temperature + temperature_variation;
-  float humidity_display = humidity + humidity_variation;
+  // Adiciona uma pequena variação aos valores das variáveis globais
+  humidity_variation = random(-10, 10) / 10.0;
+  temperature_variation = random(-5, 5) / 10.0;
+  pH_variation = random(-20, 20) / 10.0;
+
+  temperature_display = temperature + temperature_variation;
+  humidity_display = humidity + humidity_variation;
+  pH_display = constrain(pH + pH_variation, 0.0, 14.0);
 
   // Atualiza o estado dos nutrientes
   potassioPresente = (digitalRead(PINO_POTASSIO) == LOW) ? 1 : 0;
   fosforoPresente = (digitalRead(PINO_FOSFORO) == LOW) ? 1 : 0;
-
-  // Lê o valor de pH
-  leituraLDR_inicial = analogRead(LIGHT_SENSOR_PIN);
-  pH = mapearPH(leituraLDR_inicial);
-  float pH_variation = random(-20, 20) / 10.0;
-  pH_display = constrain(pH + pH_variation, 0.0, 14.0);
-  String categoriaPH_atual = categorizarPH(pH_display);
 
   String categoriaPH_inicial = categorizarPH(pH_display);
 
@@ -326,6 +328,7 @@ void setup()
   {
     Serial.println("Irrigação Inativa!");
   }
+
   publicarDados();
 }
 
@@ -335,21 +338,15 @@ void loop()
   int leituraBotaoP = digitalRead(PINO_POTASSIO);
   int leituraBotaoF = digitalRead(PINO_FOSFORO);
 
+  float humidity = temperature_display;
+  float temperature = humidity_display;
+
   // Lógica de controle da irrigação
   bool irrigar = " ";
 
   if (leituraBotaoP == LOW || leituraBotaoF == LOW)
   {
     leituraRealizada = true;
-
-    // Lê o valor de pH
-    leituraLDR_inicial = analogRead(LIGHT_SENSOR_PIN);
-    pH = mapearPH(leituraLDR_inicial);
-
-    float pH_variation = random(-20, 20) / 10.0;
-    pH_display = constrain(pH + pH_variation, 0.0, 14.0);
-
-    String categoriaPH_atual = categorizarPH(pH_display);
 
     potassioPresente = (leituraBotaoP == LOW) ? 1 : 0;
     fosforoPresente = (leituraBotaoF == LOW) ? 1 : 0;
@@ -384,7 +381,7 @@ void loop()
     publicarDados();
 
     enviarDadosPython(
-        temperatura_display,
+        temperature_display,
         humidity_display,
         leituraLDR_inicial,
         pH_display,
@@ -425,6 +422,5 @@ void loop()
     lcd.setCursor(0, 2);
     lcd.print("Aguardando leitura.."); // Indica o status da irrigação no LCD
   }
-
   delay(200);
 }

@@ -256,9 +256,9 @@ def main(host = ' ', port = 12345):
 
                         # Cria uma nova leitura para atualizar
                         nova_leitura = {
-                            "temperatura": 28.5,
-                            "umidade": 72.0,
-                            "pH": 6.8,
+                            "temperatura": 0.0,
+                            "umidade": 0.0,
+                            "pH": 0,
                             "categoria_pH": "Neutro",
                             "potassio": 0,
                             "fosforo": 0,

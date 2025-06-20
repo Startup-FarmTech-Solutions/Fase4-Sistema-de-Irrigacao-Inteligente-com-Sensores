@@ -171,15 +171,6 @@ class LeituraSensorController:
             return
 
         for item in dados_list:
-            potassio_bool = bool(item.get('potassio', False))
-            fosforo_bool = bool(item.get('fosforo', False))
-
-            potassio_adicionado = random.uniform(0.1, 0.5) if potassio_bool else 0.0
-            fosforo_adicionado = random.uniform(0.2, 0.6) if fosforo_bool else 0.0
-
-            self.potassio_atual += potassio_adicionado
-            self.fosforo_atual += fosforo_adicionado
-
             data_hora_obj = datetime.now().date()
 
             irrigacao_str = str(item.get("irrigacao", "")).strip().upper()
@@ -192,8 +183,8 @@ class LeituraSensorController:
                 umidade=item.get("umidade", 0.0),
                 leitura_ldr=item.get("leitura_ldr", 0),
                 ph=item.get("ph", 0.0),
-                potassio=self.potassio_atual,
-                fosforo=self.fosforo_atual,
+                potassio=item.get("potassio", 0),
+                fosforo=item.get("fosforo", 0),
                 irrigacao=irrigacao_char,
                 data_hora=data_hora_obj
             )

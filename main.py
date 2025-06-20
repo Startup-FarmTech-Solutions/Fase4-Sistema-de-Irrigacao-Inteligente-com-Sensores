@@ -31,5 +31,7 @@ if __name__ == "__main__":
         connection.connect_to_oracle() # Conecte ao banco de dados
         menu = Menu() # Instancia a classe menu
         menu.display_menu()  # Exibe o menu principal
+    except ConnectionResetError as cre:
+        print("Conexão de rede foi encerrada pelo host remoto. Detalhes:", cre)
     except Exception as e:
         print(f"Erro ao iniciar o sistema: {e}")

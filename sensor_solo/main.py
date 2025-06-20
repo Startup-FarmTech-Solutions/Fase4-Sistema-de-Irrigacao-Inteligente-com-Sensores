@@ -192,7 +192,7 @@ def salvar_console_print_csv(dados):
 
 # Função principal para receber dados do ESP32 e processá-los
 # Na variável host, coloque o IP do seu computador
-def main(host = ' ', port = 12345):
+def main(host = '', port = 12345):
     """
     Inicia um servidor TCP para receber leituras de sensores de um dispositivo ESP32, processar os dados recebidos,
     realizar operações CRUD em um banco de dados simulado, simular adição de potássio e fósforo, e responder ao cliente.

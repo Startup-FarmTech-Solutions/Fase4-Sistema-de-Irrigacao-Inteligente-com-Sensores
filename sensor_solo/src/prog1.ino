@@ -29,7 +29,6 @@ float temperature_display = 0.0;
 float humidity_display = 0.0;
 float humidity_variation = 0.0;
 float temperature_variation = 0.0;
-// float pH_variation = 0.0;
 bool leituraRealizada = false;
 unsigned long lastReadTime = 0;
 const unsigned long readInterval = 2000;
@@ -61,7 +60,7 @@ const char *topic_potassio = "solo/nutrientes/potassio";
 const char *topic_fosforo = "solo/nutrientes/fosforo";
 const char *topic_irrigacao = "solo/irrigacao/status";
 
-const char *server_ip = "192.168.1.48"; // Adicione o IP do seu computador
+const char *server_ip = " "; // Adicione o IP do seu computador
 const uint16_t server_port = 12345;
 
 WiFiClient espClient;
@@ -260,11 +259,9 @@ void setup()
   // Adiciona uma pequena variação aos valores das variáveis globais
   humidity_variation = random(-10, 10) / 10.0;
   temperature_variation = random(-5, 5) / 10.0;
-  // pH_variation = random(-20, 20) / 10.0;
 
   temperature_display = temperature + temperature_variation;
   humidity_display = humidity + humidity_variation;
-  // pH_display = constrain(pH + pH_variation, 0.0, 14.0);
 
   // Atualiza o estado dos nutrientes
   potassioPresente = (digitalRead(PINO_POTASSIO) == LOW) ? 1 : 0;

@@ -12,8 +12,8 @@ class LeituraSensorModel:
             umidade: float = None,
             leitura_ldr: int = None,
             ph: float = None,
-            potassio: float = None,  
-            fosforo: float = None,  
+            potassio: int = None,  
+            fosforo: int = None,  
             irrigacao: chr = None
     ):
         self.id_leitura_sensor = id_leitura_sensor
@@ -77,16 +77,16 @@ class LeituraSensorModel:
     def set_ph(self, ph: float):
         self.ph = ph
 
-    def get_potassio(self) -> float: 
+    def get_potassio(self) -> int: 
         return self.potassio
 
-    def set_potassio(self, potassio: float):
+    def set_potassio(self, potassio: int):
         self.potassio = potassio
 
-    def get_fosforo(self) -> float: 
+    def get_fosforo(self) -> int: 
         return self.fosforo
 
-    def set_fosforo(self, fosforo: float):
+    def set_fosforo(self, fosforo: int):
         self.fosforo = fosforo
 
     def get_irrigacao(self) -> str:

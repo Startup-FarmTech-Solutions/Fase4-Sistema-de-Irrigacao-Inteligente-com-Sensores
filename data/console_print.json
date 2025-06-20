@@ -1,9 +1,9 @@
 {
-    "temperatura": 24.3,
-    "umidade": 40.1,
-    "leitura_ldr": 4001,
-    "ph": 0.0,
-    "potassio": false,
-    "fosforo": true,
+    "temperatura": 23.6,
+    "umidade": 40.5,
+    "leitura_ldr": 3698,
+    "ph": 6.0,
+    "potassio": 74,
+    "fosforo": 39,
     "irrigacao": "INATIVA"
 }

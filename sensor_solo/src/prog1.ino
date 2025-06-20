@@ -25,18 +25,21 @@ DHT dht(DHTPIN, DHTTYPE);
 int potassioPresente = 0;
 int fosforoPresente = 0;
 float pH = 0.0;
-float pH_display = 0.0;
 float temperature_display = 0.0;
 float humidity_display = 0.0;
 float humidity_variation = 0.0;
 float temperature_variation = 0.0;
-float pH_variation = 0.0;
+// float pH_variation = 0.0;
 bool leituraRealizada = false;
 unsigned long lastReadTime = 0;
 const unsigned long readInterval = 2000;
 bool irrigacao_inicial = false;
 
-int leituraLDR_inicial = analogRead(LIGHT_SENSOR_PIN);
+int potassioInicial = random(0, 120);
+int fosforoInicial = random(0, 50);
+float pH_display = random(4.5, 9.0);
+
+int leituraLDR = analogRead(LIGHT_SENSOR_PIN);
 
 // Calibração do sensor de pH (LDR) - Ajuste esses valores conforme seu LDR no Wokwi
 const int ldrMin = 100; // Valor LDR em alta luminosidade (pH alto/baixo) - Ajuste!
@@ -58,7 +61,7 @@ const char *topic_potassio = "solo/nutrientes/potassio";
 const char *topic_fosforo = "solo/nutrientes/fosforo";
 const char *topic_irrigacao = "solo/irrigacao/status";
 
-const char *server_ip = " "; // Adicione o IP do seu computador
+const char *server_ip = "192.168.1.48"; // Adicione o IP do seu computador
 const uint16_t server_port = 12345;
 
 WiFiClient espClient;
@@ -85,17 +88,17 @@ float mapearPH(int ldrValue)
 
 String categorizarPH(float phValue)
 {
-  if (phValue < 6.5)
+  if (phValue < 6.0)
   {
     return "Acido";
   }
-  else if (phValue > 7.5)
+  else if (phValue >= 6.1 && phValue <= 7.3)
   {
-    return "Alcalino";
+    return "Neutro";
   }
   else
   {
-    return "Neutro";
+    return "Alcalino";
   }
 }
 
@@ -153,9 +156,13 @@ void reconnect()
         String categoriaPH = categorizarPH(pH_display);
         client.publish(topic_ph_cat, categoriaPH.c_str());
 
-        // Nutrientes
-        client.publish(topic_potassio, potassioPresente ? "1" : "0");
-        client.publish(topic_fosforo, fosforoPresente ? "1" : "0");
+        // Potassio
+        dtostrf(potassioInicial, 4, 1, buffer);
+        client.publish(topic_potassio, buffer);
+
+        // Fosforo
+        dtostrf(fosforoInicial, 4, 1, buffer);
+        client.publish(topic_fosforo, buffer);
       }
     }
     else
@@ -173,9 +180,9 @@ void publicarDados()
   JsonDocument doc;
   doc["temperatura"] = temperature_display;
   doc["umidade"] = humidity_display;
-  doc["pH"] = roundf(pH_display * 100) / 100.0;;
-  doc["potassio"] = potassioPresente;
-  doc["fosforo"] = fosforoPresente;
+  doc["pH"] = roundf(pH_display * 100) / 100.0;
+  doc["potassio"] = potassioInicial;
+  doc["fosforo"] = fosforoInicial;
   doc["irrigacao"] = digitalRead(RELE_PIN) == IRRIGACAO_ATIVA ? "ativa" : "inativa";
 
   char buffer[256];
@@ -196,9 +203,9 @@ void enviarDadosPython(float temperatura, float umidade, int leitura_ldr, float 
     json += "\"temperatura\":" + String(temperatura, 2) + ",";
     json += "\"umidade\":" + String(umidade, 2) + ",";
     json += "\"leitura_ldr\":" + String(leitura_ldr) + ",";
-    json += "\"ph\":" + String(ph, 2) + ",";
-    json += "\"potassio\":" + String(potassio ? "true" : "false") + ",";
-    json += "\"fosforo\":" + String(fosforo ? "true" : "false") + ",";
+    json += "\"ph\":" + String(ph) + ",";
+    json += "\"potassio\":" + String(potassio) + ",";
+    json += "\"fosforo\":" + String(fosforo) + ",";
     json += "\"irrigacao\":\"" + irrigacao + "\"";
     json += "}";
     client.println(json);
@@ -213,7 +220,7 @@ void enviarDadosPython(float temperatura, float umidade, int leitura_ldr, float 
 
 void setup()
 {
-  pH = mapearPH(leituraLDR_inicial);
+  pH = mapearPH(leituraLDR);
 
   Serial.begin(115200);
   setup_wifi();
@@ -253,11 +260,11 @@ void setup()
   // Adiciona uma pequena variação aos valores das variáveis globais
   humidity_variation = random(-10, 10) / 10.0;
   temperature_variation = random(-5, 5) / 10.0;
-  pH_variation = random(-20, 20) / 10.0;
+  // pH_variation = random(-20, 20) / 10.0;
 
   temperature_display = temperature + temperature_variation;
   humidity_display = humidity + humidity_variation;
-  pH_display = constrain(pH + pH_variation, 0.0, 14.0);
+  // pH_display = constrain(pH + pH_variation, 0.0, 14.0);
 
   // Atualiza o estado dos nutrientes
   potassioPresente = (digitalRead(PINO_POTASSIO) == LOW) ? 1 : 0;
@@ -275,7 +282,7 @@ void setup()
   Serial.print(humidity_display, 1);
   Serial.println(" %");
   Serial.print("Leitura LDR: ");
-  Serial.print(leituraLDR_inicial);
+  Serial.print(leituraLDR);
   Serial.print(" | pH: ");
   Serial.print(pH_display, 1);
   Serial.print(" (");
@@ -342,14 +349,82 @@ void loop()
   float temperature = humidity_display;
 
   // Lógica de controle da irrigação
-  bool irrigar = " ";
+  bool irrigar = false;
+
+  static bool botaoPPressionado = false;
+  static bool botaoFPressionado = false;
 
   if (leituraBotaoP == LOW || leituraBotaoF == LOW)
   {
     leituraRealizada = true;
 
-    potassioPresente = (leituraBotaoP == LOW) ? 1 : 0;
-    fosforoPresente = (leituraBotaoF == LOW) ? 1 : 0;
+    // Potássio
+    if (leituraBotaoP == LOW && !botaoPPressionado)
+    {
+      potassioPresente = 1;
+      int potassioAdicionado = 0;
+      if (potassioInicial < 40)
+      {
+      // Se está muito baixo, adiciona mais para tentar chegar na faixa adequada
+      potassioAdicionado = random(10, 20); // valor aleatório entre 10 e 19
+      }
+      else if (potassioInicial >= 40 && potassioInicial <= 70)
+      {
+      // Se está baixo, adiciona um valor moderado
+      potassioAdicionado = random(8, 15); // valor aleatório entre 8 e 14
+      }
+      else if (potassioInicial >= 71 && potassioInicial <= 120)
+      {
+      // Se está adequado, adiciona pouco
+      potassioAdicionado = random(1, 5); // valor aleatório entre 1 e 4
+      }
+      else
+      {
+      // Se está alto, não adiciona
+      potassioAdicionado = 0;
+      }
+      potassioInicial += potassioAdicionado;
+      botaoPPressionado = true;
+    }
+    else if (leituraBotaoP == HIGH)
+    {
+      potassioPresente = 0;
+      botaoPPressionado = false;
+    }
+
+    // Fósforo
+    if (leituraBotaoF == LOW && !botaoFPressionado)
+    {
+      fosforoPresente = 1;
+      int fosforoAdicionado = 0;
+      if (fosforoInicial < 5)
+      {
+      // Muito baixo, adiciona mais
+      fosforoAdicionado = random(4, 7); // valor aleatório entre 4 e 6
+      }
+      else if (fosforoInicial >= 5 && fosforoInicial <= 10)
+      {
+      // Baixo, adiciona moderado
+      fosforoAdicionado = random(3, 5); // valor aleatório entre 3 e 4
+      }
+      else if (fosforoInicial >= 11 && fosforoInicial <= 20)
+      {
+      // Adequado, adiciona pouco
+      fosforoAdicionado = random(1, 3); // valor aleatório entre 1 e 2
+      }
+      else
+      {
+      // Alto, não adiciona
+      fosforoAdicionado = 0;
+      }
+      fosforoInicial += fosforoAdicionado;
+      botaoFPressionado = true;
+    }
+    else if (leituraBotaoF == HIGH)
+    {
+      fosforoPresente = 0;
+      botaoFPressionado = false;
+    }
 
     Serial.println("\n--- Leitura dos Sensores ---");
     Serial.print("pH: ");
@@ -364,14 +439,39 @@ void loop()
     Serial.printf("Irrigacao: %s\n", irrigar ? "ATIVA" : "INATIVA");
     Serial.println("--------------------------");
 
+
+    if (potassioInicial < 40 && potassioInicial <= 70){
+      Serial.println("Nível de potássio baixo");
+    }
+    else if (potassioInicial >= 71 && potassioInicial <= 120)
+    {
+      Serial.println("Nível de potássio adequado");
+    }
+    else
+    {
+      Serial.println("Nível de potássio alto");
+    }
+
+    if (fosforoInicial < 5  && fosforoInicial <= 10){
+      Serial.println("Nível de fósforo baixo");
+    }
+    else if (fosforoInicial >= 11 && fosforoInicial <= 20)
+    {
+      Serial.println("Nível de fósforo adequado");
+    }
+    else
+    {
+      Serial.println("Nível de fósforo alto");
+    }
+
     // Exibe os dados no LCD
     lcd.clear();
     lcd.setCursor(3, 0);
     lcd.print("Potassio:");
-    lcd.print(potassioPresente ? "Sim" : "Não");
+    lcd.print(potassioInicial);
     lcd.setCursor(3, 1);
     lcd.print("Fosforo:");
-    lcd.print(fosforoPresente ? "Sim" : "Não");
+    lcd.print(fosforoInicial);
     lcd.setCursor(3, 2);
     lcd.print("Irrigacao:");
     lcd.print(irrigar ? " ON" : " OFF"); // Indica o status da irrigação no LCD
@@ -383,10 +483,10 @@ void loop()
     enviarDadosPython(
         temperature_display,
         humidity_display,
-        leituraLDR_inicial,
+        leituraLDR,
         pH_display,
-        potassioPresente,
-        fosforoPresente,
+        potassioInicial,
+        fosforoInicial,
         digitalRead(RELE_PIN) == IRRIGACAO_ATIVA ? "ATIVA" : "INATIVA");
 
     if (!client.connected())
@@ -395,22 +495,18 @@ void loop()
     }
     client.loop();
 
-    if (client.connected())
-    {
-    }
     delay(100);
   }
-
   else if (leituraRealizada)
   {
     // Mantém a última leitura no LCD
     lcd.clear();
     lcd.setCursor(3, 0);
     lcd.print("Potassio:");
-    lcd.print(potassioPresente ? "Sim" : "Nao");
+    lcd.print(potassioInicial);
     lcd.setCursor(3, 1);
     lcd.print("Fosforo:");
-    lcd.print(fosforoPresente ? "Sim" : "Nao");
+    lcd.print(fosforoInicial);
     lcd.setCursor(3, 2);
     lcd.print("Irrigacao:");
     lcd.print(irrigar ? " ON" : " OFF");

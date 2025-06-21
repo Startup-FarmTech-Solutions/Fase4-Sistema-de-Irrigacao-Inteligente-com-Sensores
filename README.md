@@ -189,79 +189,78 @@ Padrão observado: Uma linha muito fina e reta próxima do eixo inferior, quase 
 ---
 
 ## 📁 Estrutura de Pastas
-``
+```plaintext
 FASE4-SISTEMA-DE-IRRIGACAO-INTELIGENTE-C
 │
-├── pycache/             # Cache de bytecode Python
-├── .git/                    # Repositório Git
-├── .venv/                   # Ambiente virtual Python (recomendado)
-├── .vscode/                 # Configurações do VS Code
-├── assets/                  # Ativos do projeto (imagens, logos)
-│   └── imagens_dos_circuitos/ # Imagens dos circuitos Wokwi
+├── .env
+├── .env copy
+├── .git/
+├── .gitignore
+├── .venv/
+├── .vscode/
+├── README.md
+├── requirements.txt
+├── api_climatica.py
+├── main.py
+│
+├── assets/
+│   ├── logo-fiap.png
+│   └── imagens_dos_circuitos/
 │       ├── sensor_solo.png
 │       ├── captura-umidade.png
 │       ├── sensor_fosforo.png
 │       ├── sensor_ph.png
 │       └── sensor_potassio.png
-│   └── logo-fiap.png
 │
-├── connection/              # Módulos para conexão com banco de dados
-│   ├── pycache/
-│   ├── init.py
-│   └── connection_db.py     # Lógica de conexão com SQLite
+├── connection/
+│   ├── __init__.py
+│   ├── connection_db.py
+│   └── __pycache__/
 │
-├── controller/              # Lógica de controle e manipulação de dados
-│   ├── pycache/
-│   ├── init.py
+├── controller/
+│   ├── __init__.py
 │   ├── area_plantio_controller.py
 │   ├── cultura_controller.py
-│   └── sensor_controller.py # Controladores para interagir com os modelos e DB
+│   ├── sensor_controller.py
+│   └── __pycache__/
 │
-├── dashboard/               # Aplicação de visualização (Streamlit)
-│   ├── pycache/
-│   ├── init.py
-│   └── app.py               # Script principal do dashboard Streamlit
+├── dashboard/
+│   ├── __init__.py
+│   ├── app.py
+│   └── __pycache__/
 │
-├── data/                    # Dados brutos ou temporários do sistema
-│   └── console_print.json   # (Antigo: arquivo JSON dos dados do console)
+├── data/
+│   └── console_print.json
 │
-├── ml/                      # Módulos e notebooks de Machine Learning
-│   ├── .ipynb_checkpoints/  # Checkpoints de notebooks Jupyter
-│   ├── models/              # Modelos ML treinados e scalers
-│   │   ├── init.py
-│   │   ├── modelo_irrigacao_knn.pkl
-│   │   └── scaler_irrigacao.pkl
-│   ├── console_print.csv    # (Novo: dados do console coletados em CSV)
-│   └── modelagem_ml.ipynb   # Notebook Jupyter para treinamento do modelo ML
+├── ml/
+│   ├── console_print.csv
+│   ├── modelagem_ml.ipynb
+│   ├── .ipynb_checkpoints/
+│   └── models/
+│       ├── __init__.py
+│       ├── modelo_irrigacao_knn.pkl
+│       └── scaler_irrigacao.pkl
 │
-├── model/                   # Modelos de dados para o banco de dados
-│   ├── pycache/
-│   ├── init.py
+├── model/
+│   ├── __init__.py
 │   ├── area_plantio_model.py
 │   ├── correcao_model.py
 │   ├── cultura_model.py
 │   ├── leitura_sensor_model.py
-│   └── sensor_model.py
+│   ├── sensor_model.py
+│   └── __pycache__/
 │
-├── sensor_solo/             # Código do firmware ESP32 e arquivos de simulação Wokwi
-│   ├── .vscode/
-│   ├── src/                 # Código-fonte principal do firmware
-│   │   └── main.ino         # Firmware C/C++ para ESP32 (Wokwi)
-│   ├── .gitignore
-│   ├── diagram.json         # Configuração do circuito no Wokwi
-│   ├── main.py              # Script Python para interagir com o Wokwi/ESP32 (Coleta de dados serial)
-│   ├── platformio.ini       # Configuração do PlatformIO (se usado fora do Wokwi)
-│   ├── python-installer.exe # Instalador Python (pode ser removido se desnecessário)
-│   └── wokwi.toml           # Configurações do Wokwi
-│
-├── .env                     # Variáveis de ambiente
-├── .env copy                # Cópia das variáveis de ambiente (remover se não usada)
-├── .gitignore               # Arquivos/pastas a serem ignorados pelo Git
-├── api_climatica.py         # Script para integração com a API climática
-├── main.py                  # Script principal Python para rodar o sistema de backend (coleção, DB, etc.)
-├── README.md                # Este arquivo de documentação
-└── requirements.txt         # Dependências Python do projeto
-``
+└── sensor_solo/
+    ├── .gitignore
+    ├── .vscode/
+    ├── diagram.json
+    ├── main.py
+    ├── platformio.ini
+    ├── python-installer.exe
+    ├── wokwi.toml
+    └── src/
+        └── main.ino
+```
 
 
 ## ▶️ Como Utilizar

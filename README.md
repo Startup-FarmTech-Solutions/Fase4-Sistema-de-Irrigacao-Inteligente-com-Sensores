@@ -53,7 +53,7 @@
 
 ## 📜 Descrição
 
-Este projeto desenvolve um sistema de irrigação inteligente, integrando simulações de hardware em **Wokwi** (com um microcontrolador **ESP32**) e um backend robusto em **Python**. O sistema coleta dados simulados de sensores de solo (umidade, pH, fósforo e potássio), utiliza um **modelo de Machine Learning (KNN)** para sugestões de irrigação, armazena os dados em um banco de dados **SQLite**, e fornece visualização através de um **dashboard Streamlit**. Além disso, incorpora dados climáticos reais via **API OpenWeather** para otimizar as decisões de irrigação.
+Este projeto desenvolve um sistema de irrigação inteligente, integrando simulações de hardware em **Wokwi** (com um microcontrolador **ESP32**) e um backend robusto em **Python**. O sistema coleta dados simulados de sensores de solo (umidade, pH, fósforo e potássio), utiliza um **modelo de Machine Learning (KNN)** para sugestões de irrigação, armazena os dados em um banco de dados **SQLite**, e fornece visualização através de um **dashboard Streamlit**.
 
 ## 🚀 Funcionalidades Principais
 
@@ -62,7 +62,6 @@ Este projeto desenvolve um sistema de irrigação inteligente, integrando simula
 * **Modelo Preditivo (Machine Learning):** Integração de um modelo KNN para fornecer sugestões inteligentes sobre o status da irrigação (Ativa/Inativa) com base nos dados dos sensores.
 * **Persistência de Dados:** Armazenamento contínuo dos dados dos sensores em um banco de dados SQLite.
 * **Visualização Interativa:** Dashboard interativo construído com Streamlit para monitoramento em tempo real dos dados do solo e do status da irrigação, incluindo a previsão do modelo.
-* **Integração Climática:** Consulta à API do OpenWeather para obter dados climáticos (temperatura, chuva) e ajustar a lógica de irrigação.
 * **Interface LCD:** Exibição dos dados dos sensores e status da irrigação diretamente no display LCD simulado.
 
 ---
@@ -82,8 +81,6 @@ Este projeto desenvolve um sistema de irrigação inteligente, integrando simula
         * `streamlit`: Desenvolvimento do dashboard interativo.
         * `requests`: Para integração com a API climática.
         * Outras bibliotecas para manipulação de dados e conexão com DB.
-    * **API Pública:** OpenWeather (https://openweathermap.org/api) para dados climáticos.
-
 ---
 
 ## 🧠 Lógica do Projeto

@@ -323,6 +323,9 @@ FASE4-SISTEMA-DE-IRRIGACAO-INTELIGENTE-C
 
 ---
 
+**Link Vídeo do Funcionamento do Projeto:** 
+https://youtu.be/PSR5V5zUoE4
+
 ## 🗃 Histórico de Lançamentos
 
 * **0.1.0 - 14/05/2025**
